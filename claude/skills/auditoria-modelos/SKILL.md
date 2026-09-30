@@ -1,6 +1,6 @@
 ---
 name: auditoria-modelos
-description: Audita un proyecto de machine learning (notebook .ipynb o script .py) sin modificarlo y emite AUDIT_REPORT_<proyecto>.md con veredictos PASA / FALLA / NO SE PUEDE DETERMINAR, cada uno con evidencia citada, sobre ejecución, métricas reportadas, partición de datos, fuga de información, disparidad entre subgrupos, integridad de características y reproducibilidad. Usar cuando el usuario pida auditar, revisar o validar un modelo o notebook de clasificación, o invoque /auditoria-modelos.
+description: Audita un proyecto de machine learning de clasificación o regresión (notebook .ipynb o script .py) sin modificarlo y emite AUDIT_REPORT_<proyecto>.md con veredictos PASA / FALLA / NO SE PUEDE DETERMINAR, cada uno con evidencia citada, sobre ejecución, métricas reportadas, partición de datos, fuga de información, disparidad entre subgrupos, integridad de características y reproducibilidad. Usar cuando el usuario pida auditar, revisar o validar un modelo o notebook de clasificación, o de regresión, o invoque /auditoria-modelos.
 ---
 
 # Propósito
@@ -12,7 +12,7 @@ Verificar, con evidencia citada y sin modificar el proyecto, que un modelo de ML
 | Entrada | Obligatoria | Si falta |
 |---|---|---|
 | Ruta del notebook `.ipynb` o script `.py` | Sí | Pedirla. No auditar "de memoria". |
-| Columna objetivo y clase positiva | Sí | Buscarla en el código (`y = df[...]`) y declararla como **supuesto** en el encabezado. |
+| Columna objetivo y clase positiva (clasificación) o unidades del error (regresión) | Sí | Buscarla en el código (`y = df[...]`) y declararla como **supuesto** en el encabezado. |
 | Columna(s) de subgrupo | No | V4 = NO SE PUEDE DETERMINAR. No inventar subgrupos. |
 | Nombre corto del proyecto | No | Usar el nombre del archivo sin extensión. |
 | Descripción del problema (costo de cada error) | No | Tomarla de las celdas de texto del propio notebook. |
@@ -33,7 +33,7 @@ Verificar, con evidencia citada y sin modificar el proyecto, que un modelo de ML
    `python .claude/skills/auditoria-modelos/scripts/extraer_evidencia.py <archivo>`
    Da celdas numeradas, errores en salidas, celdas sin salida y señales (`split`, `fit_transform`, `transformador`, `pipeline`, `metrica`, `division_por_columna`, `rng_global`, `estimador_sin_semilla`, `derivada_de_otra_columna`).
 3. Leer el archivo completo, incluidas las celdas de texto y las salidas. El inventario orienta; no reemplaza la lectura.
-4. Aplicar V0 → V6 en ese orden. V0 condiciona a V1 y V4.
+4. Determinar el **tipo de problema**: clasificación si el objetivo es categórico o se usan métricas de clasificación; **regresión** si el objetivo es continuo o se usan `mean_squared_error`, `r2_score`, `*Regressor` o `LinearRegression`. En regresión, **V1 se reemplaza por V1R y V4 usa la variante de regresión**; V2.3 queda NSPD "no aplica". Aplicar V0 → V6 en ese orden. V0 condiciona a V1/V1R y V4.
 5. Si V1.2, V1.3 o V4 necesitan números que el notebook no produjo, se puede ejecutar una **verificación reproducida** sobre una copia (regla 1) y citarla como `evidencia/<script>.py (salida)`.
 6. Escribir `AUDIT_REPORT_<proyecto>.md` con la plantilla de **Salida**.
 7. Antes de entregar, revisar el propio informe: cada fila tiene evidencia con el formato de la regla 4; ningún PASA descansa en ausencia de evidencia; cada FALLA tiene una acción recomendada.
@@ -56,6 +56,15 @@ Definiciones: *K* = número de clases; *p_min* = proporción de la clase menos f
 | V1.2 Coherencia con la matriz | Hay matriz de confusión y precisión/exhaustividad/F1 reportadas coinciden con VP/FP/FN (±0.01) | No coinciden | No hay matriz, o no hay métricas derivadas que comparar |
 | V1.3 Desbalance | No hay desbalance, **o** lo hay y se reporta al menos una métrica por clase (precisión, exhaustividad, F1, *balanced accuracy*) | Hay desbalance y solo se reporta accuracy | No se puede calcular *p_min* (no hay distribución de clases visible ni código que la muestre) |
 | V1.4 Costo del error | Una celda de texto nombra qué error es más costoso y la métrica prioritaria es coherente con eso; **o** clases balanceadas y el problema no menciona costos asimétricos (se cita la celda que describe el problema) | El dominio tiene costos asimétricos (salud, crédito, fraude, contratación…) o hay desbalance, y la métrica elegida no lo refleja o no hay justificación | No hay descripción del problema |
+
+## V1R. Métricas de regresión (reemplaza V1 cuando el objetivo es continuo)
+| ID | PASA | FALLA | NSPD |
+|---|---|---|---|
+| V1R.1 Rango y coherencia | MSE ≥ 0, RMSE = √MSE (±0.5 %), R² ≤ 1, todos impresos sobre el conjunto de **prueba** | Algún valor fuera de rango, RMSE ≠ √MSE, o las métricas se calculan sobre entrenamiento y se presentan como desempeño | No hay métricas impresas |
+| V1R.2 Referencia trivial | Se reporta un modelo de referencia (`DummyRegressor` media/mediana) con la misma partición y los modelos se comparan contra él | No hay referencia, o se evalúa con otra partición | — |
+| V1R.3 Más de una métrica | Se reportan al menos una métrica en unidades del problema (RMSE o MAE) **y** una relativa (R²) | Solo una de las dos | — |
+| V1R.4 Sobreajuste | Se reportan R² de entrenamiento y de prueba; la diferencia es ≤ 0.10 **o** está señalada e interpretada en el texto | Diferencia > 0.10 sin mencionarla, o no se reporta R² de entrenamiento | — |
+| V1R.5 Residuos | Hay gráfica de residuos vs. predichos **e** histograma del mejor modelo, y una celda de texto que interpreta si hay patrón | Falta alguna de las dos gráficas o la interpretación | V0 impide ver las salidas |
 
 ## V2. Partición de datos
 | ID | PASA | FALLA | NSPD |
@@ -85,6 +94,9 @@ Umbral: se marca disparidad si, en la métrica prioritaria de V1.4 (por defecto,
 |---|---|---|---|
 | V4.1 Cálculo por subgrupo | El proyecto calcula la métrica prioritaria por subgrupo | No la calcula (y se indicó una columna de subgrupo) | No se indicó columna de subgrupo |
 | V4.2 Brecha | Ningún subgrupo con n ≥ 30 supera el umbral (en el proyecto o en la verificación reproducida) | Algún subgrupo supera el umbral | No hay números por subgrupo, V0 impide reproducirlos o todos los subgrupos tienen n < 30 |
+
+
+**Variante de regresión de V4.** La métrica es el **RMSE** (en unidades del problema). Se marca disparidad si algún subgrupo con **n ≥ 30** en prueba tiene **RMSE ≥ 1.25 × RMSE global**. Justificación: en regresión el error crece con la escala del objetivo, así que un grupo de valores altos puede tener RMSE mayor sin ser peor atendido; 1.25 tolera esa variación y marca brechas que cambian decisiones. Siempre se reporta además el **error relativo** (RMSE / media del objetivo en el subgrupo) para distinguir las dos situaciones en la evidencia. V4.1 = PASA si el proyecto calcula el RMSE por subgrupo.
 
 ## V5. Reproducibilidad
 | ID | PASA | FALLA | NSPD |

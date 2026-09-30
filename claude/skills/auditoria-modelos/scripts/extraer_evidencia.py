@@ -16,7 +16,7 @@ PATRONES = {
     "fit": r"\.fit\s*\(",
     "pipeline": r"\b(Pipeline|make_pipeline|ColumnTransformer)\b",
     "transformador": r"\b(StandardScaler|MinMaxScaler|RobustScaler|SimpleImputer|KNNImputer|OneHotEncoder|OrdinalEncoder|PCA|SelectKBest)\b",
-    "metrica": r"\b(accuracy_score|balanced_accuracy_score|precision_score|recall_score|f1_score|fbeta_score|roc_auc_score|confusion_matrix|classification_report|\.score\s*\()",
+    "metrica": r"\b(mean_squared_error|mean_absolute_error|r2_score|root_mean_squared_error|accuracy_score|balanced_accuracy_score|precision_score|recall_score|f1_score|fbeta_score|roc_auc_score|confusion_matrix|classification_report|\.score\s*\()",
     "division_por_columna": r"/\s*df\w*\s*\[",
     "rng_global": r"\brng\.\w+\(",
     "estimador_sin_semilla": r"\b(RandomForestClassifier|RandomForestRegressor|DecisionTreeClassifier|GradientBoostingClassifier|ExtraTreesClassifier)\s*\((?![^)]*random_state)",
