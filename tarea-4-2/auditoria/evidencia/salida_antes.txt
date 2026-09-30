@@ -1,0 +1,14 @@
+Regresión lineal: RMSE global = 5,360 USD (n = 300)
+   fumador=no         n=251  RMSE=  3,641  RMSE/global=0.68  costo medio= 14,142
+   fumador=yes        n= 49  RMSE= 10,393  RMSE/global=1.94  costo medio= 37,688
+   region=northeast  n= 79  RMSE=  4,515  RMSE/global=0.84  costo medio= 15,883
+   region=northwest  n= 71  RMSE=  6,193  RMSE/global=1.16  costo medio= 19,419
+   region=southeast  n= 76  RMSE=  5,789  RMSE/global=1.08  costo medio= 18,784
+   region=southwest  n= 74  RMSE=  4,847  RMSE/global=0.90  costo medio= 18,044
+Random Forest: RMSE global = 3,892 USD (n = 300)
+   fumador=no         n=251  RMSE=  3,564  RMSE/global=0.92  costo medio= 14,142
+   fumador=yes        n= 49  RMSE=  5,262  RMSE/global=1.35  costo medio= 37,688
+   region=northeast  n= 79  RMSE=  3,793  RMSE/global=0.97  costo medio= 15,883
+   region=northwest  n= 71  RMSE=  4,353  RMSE/global=1.12  costo medio= 19,419
+   region=southeast  n= 76  RMSE=  4,029  RMSE/global=1.04  costo medio= 18,784
+   region=southwest  n= 74  RMSE=  3,346  RMSE/global=0.86  costo medio= 18,044
