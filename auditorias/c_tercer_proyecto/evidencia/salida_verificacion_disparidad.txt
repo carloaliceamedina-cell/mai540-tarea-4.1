@@ -1,0 +1,11 @@
+income_gt_50k
+0    0.749
+1    0.251
+Name: proportion, dtype: float64
+Accuracy regresión logística: 0.809
+Accuracy random forest:       0.807
+Matriz global [0,1]: [[549, 49], [104, 98]]
+Global: n=800  positivos=202  exhaustividad=0.485  precisión=0.667
+Male  : n=534  positivos=139  exhaustividad=0.568  diferencia vs global=+0.083
+Female: n=266  positivos=63  exhaustividad=0.302  diferencia vs global=-0.184
+Cociente peor/mejor subgrupo: 0.531

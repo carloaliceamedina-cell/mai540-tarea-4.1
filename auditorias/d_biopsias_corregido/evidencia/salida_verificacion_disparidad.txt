@@ -1,0 +1,4 @@
+Global: n=143 malignos=54 exhaustividad maligno=0.796
+0 previas   : n=29 malignos=11 exhaustividad=0.818 diferencia=+0.022
+>=1 previas : n=114 malignos=43 exhaustividad=0.791 diferencia=-0.006
+Cociente peor/mejor: 0.966
