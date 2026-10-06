@@ -137,3 +137,24 @@ El patrón es el mismo. En lugar de completar `mcp_server.py`, en la tarea:
 13 numéricas) — ambos de scikit-learn, generados con `sklearn.datasets`. Puedes
 agregar cualquier otro CSV a esa carpeta; `pca_utils.py` no tiene nada
 hardcodeado sobre estos dos en particular.
+
+---
+
+## Tarea 5.1 — Estado y verificación (Carlo E. Alicea Medina)
+
+**Las 5 piezas de `mcp_server.py` están completas**, cada una en su propio commit: `cargar_dataset`, `ejecutar_pca`, `data://datasets`, `data://datasets/{nombre}` e `interpretar_componentes`.
+
+### Evidencia
+- `evidencia/log_verificacion_final.txt` — resultado de cada una de las 5 piezas, llamadas **por el protocolo MCP real (stdio)** con el `mcp_client.py` del proyecto, más casos límite.
+- `evidencia/log_verificacion_1_antes_de_corregir_ruta.txt` — la misma verificación antes de la corrección de seguridad: muestra que `cargar_dataset("../verificacion/secreto_fuera")` **leía un CSV fuera de `datasets/`**.
+- Para repetirla: `python verificacion/verificar_servidor.py` (con mcp ≥ 2.0). Con mcp 1.x instalado, agrega `--compat`: un alias temporal del API 2.0, solo para verificar, que no modifica el servidor.
+- En el Inspector (`mcp dev mcp_server.py`), las mismas 5 pruebas: `cargar_dataset` con `iris`; `ejecutar_pca` con `iris` y `2`; `data://datasets`; `data://datasets/wine`; `interpretar_componentes` con `iris` y `2`.
+
+### Permisos (mínimos necesarios)
+| Puede | No puede |
+|---|---|
+| Listar los `.csv` de `datasets/` | Leer cualquier archivo fuera de `datasets/` (corregido en `pca_utils._ruta_dataset`: solo nombres de la lista blanca `listar_datasets()`) |
+| Leer **un** CSV de `datasets/` y devolver su ficha (filas y nombres de columnas) | Devolver filas crudas: `ejecutar_pca` solo devuelve agregados (varianzas y cargas) |
+| Ejecutar PCA en memoria | Escribir, borrar o modificar archivos |
+| Responder por stdio al proceso cliente que lo lanzó | Acceder a internet o abrir puertos de red (transporte `stdio`, sin HTTP) |
+| — | Leer variables de entorno o `.env` (la `ANTHROPIC_API_KEY` la usa `chat.py`, nunca el servidor) |
