@@ -93,6 +93,9 @@ def ejecutar_pca(
 #   Decorador:   @mcp.resource("data://datasets", mime_type="application/json")
 #   Función:     listar_datasets() -> list[str]
 #   Cuerpo:      return pca_utils.listar_datasets()
+@mcp.resource("data://datasets", mime_type="application/json")
+def listar_datasets() -> list[str]:
+    return pca_utils.listar_datasets()
 
 
 # TODO 4 — resource con plantilla "data://datasets/{nombre}"
