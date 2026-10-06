@@ -104,6 +104,9 @@ def listar_datasets() -> list[str]:
 #   Cuerpo:      return pca_utils.describir_dataset(nombre)
 #   El framework extrae automáticamente lo que haya entre {llaves} en la URI
 #   que pida el cliente y lo pasa como argumento "nombre".
+@mcp.resource("data://datasets/{nombre}", mime_type="application/json")
+def ficha_dataset(nombre: str) -> dict:
+    return pca_utils.describir_dataset(nombre)
 
 
 # ---------------------------------------------------------------------------
