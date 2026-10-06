@@ -14,7 +14,7 @@ Prompt   -> una plantilla ya evaluada para una tarea recurrente: interpretar
             componentes principales en términos del dominio, no solo en
             términos de varianza.
 
-ESTADO: INCOMPLETO A PROPÓSITO.
+ESTADO: COMPLETO (Tarea 5.1). Las 5 piezas están implementadas debajo de su TODO.
 Cada bloque "# TODO" de abajo es una pieza que se escribe en vivo durante la
 clase, siguiendo el patrón de @mcp.tool / @mcp.resource / @mcp.prompt que ya
 viste en las diapositivas 10, 11 y 12. La lógica de negocio (pca_utils.py) ya
@@ -128,6 +128,25 @@ def ficha_dataset(nombre: str) -> dict:
 #                varianza acumulada.
 #   Devolver:    return [UserMessage(prompt)]
 #   Ver el texto exacto sugerido en la diapositiva 12.
+@mcp.prompt(
+    name="interpretar_componentes",
+    description=(
+        "Plantilla evaluada para interpretar los componentes principales de un "
+        "dataset en términos del dominio, no solo de la varianza."
+    ),
+)
+def interpretar_componentes(
+    nombre: str = Field(description="Nombre del dataset sobre el que se ejecutó (o se ejecutará) PCA."),
+    n_componentes: int = Field(description="Número de componentes a interpretar."),
+) -> list[UserMessage]:
+    prompt = f"""Usa la tool ejecutar_pca sobre el dataset "{nombre}" con {n_componentes} componentes y, con ese resultado:
+
+1. Para cada componente, identifica las 2-3 variables originales con mayor carga en valor absoluto.
+2. Explica qué patrón del dominio de "{nombre}" podría representar cada componente según esas variables (no te limites a decir cuánta varianza captura).
+3. Indica si el signo de las cargas tiene una lectura razonable: qué significa que una variable cargue en positivo y otra en negativo dentro del mismo componente.
+
+Termina respondiendo: según la varianza acumulada, ¿alcanzan {n_componentes} componentes para resumir el dataset, o harían falta más?"""
+    return [UserMessage(prompt)]
 
 
 if __name__ == "__main__":
