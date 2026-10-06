@@ -1,5 +1,5 @@
 """
-Servidor MCP: dos tools, dos resources, un prompt.
+Servidor MCP: tres tools (incluida segmentar_kmeans, Tarea 5.2), dos resources, un prompt.
 
 Este es el archivo que el profesor completa en vivo durante la Clase 5.1,
 siguiendo el mismo patrón del curso de Anthropic "Introduction to Model
@@ -29,6 +29,7 @@ a mano antes de conectarlo a nada más.
 from mcp.server.mcpserver import MCPServer, UserMessage
 from pydantic import Field
 
+import kmeans_utils
 import pca_utils
 
 mcp = MCPServer("analisis-datos")
@@ -82,6 +83,23 @@ def ejecutar_pca(
     n_componentes: int = Field(description="Número de componentes principales a calcular (entero >= 1)."),
 ) -> dict:
     return pca_utils.ejecutar_pca(nombre, n_componentes)
+
+
+# Tarea 5.2 — tool "segmentar_kmeans" (mismo patrón: la lógica vive en kmeans_utils.py)
+@mcp.tool(
+    name="segmentar_kmeans",
+    description=(
+        "Segmenta un dataset con K-Means (columnas numéricas estandarizadas) en k grupos. "
+        "Devuelve la etiqueta de grupo de cada fila, el tamaño de cada grupo, la inercia, "
+        "el coeficiente de silueta del k elegido y el perfil medio de cada grupo en las "
+        "variables originales, para poder describir qué caracteriza a cada uno."
+    ),
+)
+def segmentar_kmeans(
+    nombre: str = Field(description="Nombre del dataset sin extensión .csv."),
+    k: int = Field(description="Número de grupos (entero >= 2)."),
+) -> dict:
+    return kmeans_utils.ejecutar_kmeans(nombre, k)
 
 
 # ---------------------------------------------------------------------------
