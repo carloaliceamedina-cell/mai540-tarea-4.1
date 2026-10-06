@@ -24,6 +24,13 @@ def listar_datasets() -> list[str]:
 
 
 def _ruta_dataset(nombre: str) -> Path:
+    # Permiso mínimo (Tarea 5.1): solo se aceptan nombres que existan como CSV
+    # DIRECTAMENTE dentro de datasets/. Así "../otra_carpeta/archivo" o una ruta
+    # absoluta no pueden leer CSV fuera de esa carpeta (se verificó que antes sí podían).
+    if nombre not in listar_datasets():
+        raise ValueError(
+            f"No existe el dataset '{nombre}'. Disponibles: {listar_datasets()}"
+        )
     ruta = DATASETS_DIR / f"{nombre}.csv"
     if not ruta.exists():
         raise ValueError(
