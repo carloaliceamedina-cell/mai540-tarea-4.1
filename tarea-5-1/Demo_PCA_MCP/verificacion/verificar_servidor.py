@@ -51,11 +51,18 @@ async def main():
         bloque("PIEZA 5 — prompt interpretar_componentes(nombre='iris', n_componentes=2)",
                f"role={msgs[0].role}\n{msgs[0].content.text}")
 
+        r = await c.call_tool("segmentar_kmeans", {"nombre": "wine", "k": 3})
+        res = json.loads(r.content[0].text)
+        res["etiquetas"] = f"{len(res['etiquetas'])} etiquetas; primeras 15: {res['etiquetas'][:15]}"
+        bloque("TAREA 5.2 — tool segmentar_kmeans(nombre='wine', k=3)", res)
+
         print("\n=== CASOS LÍMITE (permisos y errores) ===")
         casos = [("ejecutar_pca", {"nombre": "iris", "n_componentes": 9}),
                  ("cargar_dataset", {"nombre": "no_existe"}),
                  ("cargar_dataset", {"nombre": "../verificacion/secreto_fuera"}),
-                 ("cargar_dataset", {"nombre": "C:/Windows/secreto"})]
+                 ("cargar_dataset", {"nombre": "C:/Windows/secreto"}),
+                 ("segmentar_kmeans", {"nombre": "wine", "k": 1}),
+                 ("segmentar_kmeans", {"nombre": "../verificacion/secreto_fuera", "k": 2})]
         for tool, a in casos:
             r = await c.call_tool(tool, a)
             texto = r.content[0].text if r.content else ""

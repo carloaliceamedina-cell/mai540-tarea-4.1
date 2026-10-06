@@ -1,0 +1,250 @@
+Verificación del servidor MCP 'analisis-datos' — 2026-10-06 14:49
+
+=== Descubrimiento: tools ===
+[
+  {
+    "name": "cargar_dataset",
+    "inputSchema": {
+      "properties": {
+        "nombre": {
+          "description": "Nombre del dataset sin extensión .csv, por ejemplo 'iris' o 'wine'.",
+          "title": "Nombre",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nombre"
+      ],
+      "title": "cargar_datasetArguments",
+      "type": "object"
+    }
+  },
+  {
+    "name": "ejecutar_pca",
+    "inputSchema": {
+      "properties": {
+        "nombre": {
+          "description": "Nombre del dataset sin extensión .csv.",
+          "title": "Nombre",
+          "type": "string"
+        },
+        "n_componentes": {
+          "description": "Número de componentes principales a calcular (entero >= 1).",
+          "title": "N Componentes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "nombre",
+        "n_componentes"
+      ],
+      "title": "ejecutar_pcaArguments",
+      "type": "object"
+    }
+  },
+  {
+    "name": "segmentar_kmeans",
+    "inputSchema": {
+      "properties": {
+        "nombre": {
+          "description": "Nombre del dataset sin extensión .csv.",
+          "title": "Nombre",
+          "type": "string"
+        },
+        "k": {
+          "description": "Número de grupos (entero >= 2).",
+          "title": "K",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "nombre",
+        "k"
+      ],
+      "title": "segmentar_kmeansArguments",
+      "type": "object"
+    }
+  }
+]
+
+=== Descubrimiento: resources ===
+[
+  "data://datasets",
+  "data://datasets/{nombre}"
+]
+
+=== Descubrimiento: prompts ===
+[
+  {
+    "name": "interpretar_componentes",
+    "arguments": [
+      "nombre",
+      "n_componentes"
+    ]
+  }
+]
+
+=== PIEZA 1 — tool cargar_dataset(nombre='iris') ===
+{
+  "nombre": "iris",
+  "filas": 150,
+  "columnas_numericas": [
+    "sepal length (cm)",
+    "sepal width (cm)",
+    "petal length (cm)",
+    "petal width (cm)"
+  ],
+  "columnas_categoricas": [
+    "especie"
+  ]
+}
+
+=== PIEZA 2 — tool ejecutar_pca(nombre='iris', n_componentes=2) ===
+{
+  "dataset": "iris",
+  "filas_usadas": 150,
+  "variables_originales": [
+    "sepal length (cm)",
+    "sepal width (cm)",
+    "petal length (cm)",
+    "petal width (cm)"
+  ],
+  "n_componentes": 2,
+  "varianza_explicada_por_componente": [
+    0.7296,
+    0.2285
+  ],
+  "varianza_acumulada": 0.9581,
+  "cargas": {
+    "PC1": {
+      "sepal length (cm)": 0.5211,
+      "sepal width (cm)": -0.2693,
+      "petal length (cm)": 0.5804,
+      "petal width (cm)": 0.5649
+    },
+    "PC2": {
+      "sepal length (cm)": 0.3774,
+      "sepal width (cm)": 0.9233,
+      "petal length (cm)": 0.0245,
+      "petal width (cm)": 0.0669
+    }
+  }
+}
+
+=== PIEZA 3 — resource data://datasets ===
+{
+  "uri": "data://datasets",
+  "mimeType": "application/json",
+  "contenido": [
+    "iris",
+    "wine"
+  ]
+}
+
+=== PIEZA 4 — resource data://datasets/{nombre} con nombre='wine' ===
+{
+  "uri": "data://datasets/wine",
+  "mimeType": "application/json",
+  "contenido": {
+    "nombre": "wine",
+    "filas": 178,
+    "columnas_numericas": [
+      "alcohol",
+      "malic_acid",
+      "ash",
+      "alcalinity_of_ash",
+      "magnesium",
+      "total_phenols",
+      "flavanoids",
+      "nonflavanoid_phenols",
+      "proanthocyanins",
+      "color_intensity",
+      "hue",
+      "od280/od315_of_diluted_wines",
+      "proline"
+    ],
+    "columnas_categoricas": [
+      "clase"
+    ]
+  }
+}
+
+=== PIEZA 5 — prompt interpretar_componentes(nombre='iris', n_componentes=2) ===
+role=user
+Usa la tool ejecutar_pca sobre el dataset "iris" con 2 componentes y, con ese resultado:
+
+1. Para cada componente, identifica las 2-3 variables originales con mayor carga en valor absoluto.
+2. Explica qué patrón del dominio de "iris" podría representar cada componente según esas variables (no te limites a decir cuánta varianza captura).
+3. Indica si el signo de las cargas tiene una lectura razonable: qué significa que una variable cargue en positivo y otra en negativo dentro del mismo componente.
+
+Termina respondiendo: según la varianza acumulada, ¿alcanzan 2 componentes para resumir el dataset, o harían falta más?
+
+=== TAREA 5.2 — tool segmentar_kmeans(nombre='wine', k=3) ===
+{
+  "dataset": "wine",
+  "k": 3,
+  "filas_usadas": 178,
+  "etiquetas": "178 etiquetas; primeras 15: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]",
+  "tamano_por_grupo": {
+    "grupo_0": 65,
+    "grupo_1": 51,
+    "grupo_2": 62
+  },
+  "inercia": 1277.928,
+  "silueta": 0.2849,
+  "perfil_medio_por_grupo": {
+    "grupo_0": {
+      "alcohol": 12.251,
+      "malic_acid": 1.897,
+      "ash": 2.231,
+      "alcalinity_of_ash": 20.063,
+      "magnesium": 92.738,
+      "total_phenols": 2.248,
+      "flavanoids": 2.05,
+      "nonflavanoid_phenols": 0.358,
+      "proanthocyanins": 1.624,
+      "color_intensity": 2.973,
+      "hue": 1.063,
+      "od280/od315_of_diluted_wines": 2.803,
+      "proline": 510.169
+    },
+    "grupo_1": {
+      "alcohol": 13.134,
+      "malic_acid": 3.307,
+      "ash": 2.418,
+      "alcalinity_of_ash": 21.241,
+      "magnesium": 98.667,
+      "total_phenols": 1.684,
+      "flavanoids": 0.819,
+      "nonflavanoid_phenols": 0.452,
+      "proanthocyanins": 1.146,
+      "color_intensity": 7.235,
+      "hue": 0.692,
+      "od280/od315_of_diluted_wines": 1.697,
+      "proline": 619.059
+    },
+    "grupo_2": {
+      "alcohol": 13.677,
+      "malic_acid": 1.998,
+      "ash": 2.466,
+      "alcalinity_of_ash": 17.463,
+      "magnesium": 107.968,
+      "total_phenols": 2.848,
+      "flavanoids": 3.003,
+      "nonflavanoid_phenols": 0.292,
+      "proanthocyanins": 1.922,
+      "color_intensity": 5.454,
+      "hue": 1.065,
+      "od280/od315_of_diluted_wines": 3.163,
+      "proline": 1100.226
+    }
+  }
+}
+
+=== CASOS LÍMITE (permisos y errores) ===
+- ejecutar_pca({'nombre': 'iris', 'n_componentes': 9}) -> isError=True: Error executing tool ejecutar_pca: n_componentes debe estar entre 1 y 4 (número de columnas numéricas en 'iris').
+- cargar_dataset({'nombre': 'no_existe'}) -> isError=True: Error executing tool cargar_dataset: No existe el dataset 'no_existe'. Disponibles: ['iris', 'wine']
+- cargar_dataset({'nombre': '../verificacion/secreto_fuera'}) -> isError=True: Error executing tool cargar_dataset: No existe el dataset '../verificacion/secreto_fuera'. Disponibles: ['iris', 'wine']
+- cargar_dataset({'nombre': 'C:/Windows/secreto'}) -> isError=True: Error executing tool cargar_dataset: No existe el dataset 'C:/Windows/secreto'. Disponibles: ['iris', 'wine']
+- segmentar_kmeans({'nombre': 'wine', 'k': 1}) -> isError=True: Error executing tool segmentar_kmeans: k debe estar entre 2 y 177 (filas de 'wine').
+- segmentar_kmeans({'nombre': '../verificacion/secreto_fuera', 'k': 2}) -> isError=True: Error executing tool segmentar_kmeans: No existe el dataset '../verificacion/secreto_fuera'. Disponibles: ['iris', 'wine']

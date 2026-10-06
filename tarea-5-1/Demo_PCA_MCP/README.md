@@ -158,3 +158,14 @@ hardcodeado sobre estos dos en particular.
 | Ejecutar PCA en memoria | Escribir, borrar o modificar archivos |
 | Responder por stdio al proceso cliente que lo lanzó | Acceder a internet o abrir puertos de red (transporte `stdio`, sin HTTP) |
 | — | Leer variables de entorno o `.env` (la `ANTHROPIC_API_KEY` la usa `chat.py`, nunca el servidor) |
+
+---
+
+## Tarea 5.2 — Segmentación con K-Means (mismo servidor)
+
+- **`kmeans_utils.py`**: `cargar_y_escalar(nombre)` y `ejecutar_kmeans(nombre, k)`, que devuelve etiquetas, tamaños, inercia, silueta y perfil medio por grupo. También `evaluar_k(nombre)`, que calcula el codo y la silueta de k = 2 a 8. Reutiliza la validación de nombres de `pca_utils`, así que hereda el mismo permiso mínimo.
+- **Tool `segmentar_kmeans(nombre, k)`** en `mcp_server.py`. Verificada por el protocolo en `evidencia/log_verificacion_tarea_5_2.txt`: wine con k = 3 da grupos de 65, 51 y 62 y silueta de 0.285. Se probaron además los casos límite k = 1 y una ruta fuera de `datasets/`.
+- **Elección de k**: `segmentacion/eleccion_k.png` y `segmentacion/eleccion_k.csv`. Se eligió k = 3: el codo está ahí (−381 de inercia al pasar de 2 a 3, contra −103 de 3 a 4) y la silueta es máxima (0.285).
+- **PCA en 2D**: `segmentacion/pca_kmeans_2d.png`, que usa `pca_utils.ejecutar_pca` de la Tarea 5.1. Conserva el **55.4 %** de la varianza (36.2 % + 19.2 %).
+- **Reproducir**: `python segmentacion/analisis_segmentacion.py`
+- **Documentos**: `docs/Tarea_5_2_Segmentacion_Interpretacion.pdf` (interpretación de cada grupo y acción propuesta) y `docs/Tarea_5_2_Propuesta_Capstone.pdf`.
